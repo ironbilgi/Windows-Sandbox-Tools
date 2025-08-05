@@ -3,7 +3,7 @@
 
 # Author: ThioJoe
 # Repo Url: https://github.com/ThioJoe/Windows-Sandbox-Tools
-
+# Last Updated: August 4, 2025
 
 param(
         [switch]$removeMsStoreAsSource = $false # If switch is included, it will remove the 'msstore' source after installing winget, which doesn't work with Sandbox, unless the Microsoft Store is also installed
@@ -152,5 +152,8 @@ if ($removeMsStoreAsSource.IsPresent) {
     } catch {
         Write-Warning "An error occurred while trying to execute 'winget source remove msstore': $($_.Exception.Message)"
     }
+} else {
+    # Automatically accept source agreements to avoid prompts. Mostly applies to msstore.
+    winget list --accept-source-agreements | Out-Null
 }
 
