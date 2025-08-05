@@ -4,7 +4,7 @@
 
 # Author: ThioJoe
 # Repo Url: https://github.com/ThioJoe/Windows-Sandbox-Tools
-# Last Updated: August 4, 2025
+# Last Updated: August 5, 2025
 
 param(
     # Optional switch to output the generated XML files to the working directory
@@ -24,6 +24,14 @@ $currentBranch = "ge_release"      # "rs_prerelease" for insider, "ni_release" f
 # Random Notes:
 #   flightRing should be "Internal" if flightingBranchName is "MSIT"
 #   MAYBE need flightRing as "External" if setting flightingBranchName anything besides empty or MSIT?
+
+# ------ Check that we're running in the Windows Sandbox ------
+# This script is intended to be run from within the Windows Sandbox. Warn the user if not. We'll do a rudamentary check for if the current user is named "WDAGUtilityAccount"
+if ($env:USERNAME -ne "WDAGUtilityAccount") {
+    Write-Warning "`nThis script is intended to be run from WITHIN the Windows Sandbox.`nRunning it outside the Sandbox will just install the MS Store to the current system."
+    Write-host "`nPress Enter to continue installing to the current system anyway, or just close this window to exit." -ForegroundColor Yellow
+    Read-Host
+}
 
 # --- Define Working Directory ---
 # Get the path to the user's personal Downloads folder in a reliable way
