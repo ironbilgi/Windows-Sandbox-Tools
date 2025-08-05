@@ -5,6 +5,11 @@
 # Author: ThioJoe
 # Repo Url: https://github.com/ThioJoe/Windows-Sandbox-Tools
 
+param(
+    # Optional switch to output the generated XML files to the working directory
+    [switch]$debugSaveFiles
+)
+
 # --- Configuration ---
 # Category ID for the Microsoft Store app package
 $storeCategoryId = "64293252-5926-453c-9494-2d4021f1c78d" 
@@ -37,7 +42,9 @@ if (-not (Test-Path -Path $workingDir)) {
     New-Item -Path $workingDir -ItemType Directory -Force | Out-Null
 }
 
-Write-Host "All files (logs, downloads) will be saved to: '$workingDir'" -ForegroundColor Yellow
+If ($debugSaveFiles) {
+    Write-Host "All files (logs, downloads) will be saved to: '$workingDir'" -ForegroundColor Yellow
+}
 
 # --- XML Templates ---
 
@@ -167,12 +174,11 @@ try {
     # Step 1: Get Cookie
     Write-Host "Step 1: Getting authentication cookie..."
     $cookieRequestPayload = $cookieXmlTemplate
-    #$cookieRequestPayload | Set-Content -Path (Join-Path $LogDirectory "01_Step1_Request.xml")
+    If ($debugSaveFiles) { $cookieRequestPayload | Set-Content -Path (Join-Path $LogDirectory "01_Step1_Request.xml") }
     
     $cookieResponse = Invoke-WebRequest -Uri $baseUri -Method Post -Body $cookieRequestPayload -Headers $headers -UseBasicParsing
-    #$cookieResponse.Content | Set-Content -Path (Join-Path $LogDirectory "01_Step1_Response.xml")
-    Write-Host "  -> Saved request and response logs for Step 1."
-    
+    If ($debugSaveFiles) { $cookieResponse.Content | Set-Content -Path (Join-Path $LogDirectory "01_Step1_Response.xml"); Write-Host "  -> Saved request and response logs for Step 1." }
+
     $cookieResponseXml = [xml]$cookieResponse.Content
     $encryptedCookieData = $cookieResponseXml.Envelope.Body.GetCookieResponse.GetCookieResult.EncryptedData
     Write-Host "Success. Cookie received." -ForegroundColor Green
@@ -180,12 +186,10 @@ try {
     # Step 2: Get File List
     Write-Host "Step 2: Getting file list..."
     $fileListRequestPayload = $fileListXmlTemplate -f $encryptedCookieData, $storeCategoryId, $flightRing
-    $tempRequestFile = Join-Path $workingDir "02_Step2_Request_AUTOMATED.xml"
-    [System.IO.File]::WriteAllText($tempRequestFile, $fileListRequestPayload, [System.Text.UTF8Encoding]::new($false))
+    If ($debugSaveFiles) { [System.IO.File]::WriteAllText((Join-Path $LogDirectory "02_Step2_Request_AUTOMATED.xml"), $fileListRequestPayload, [System.Text.UTF8Encoding]::new($false)) }
 
-    $fileListResponse = Invoke-WebRequest -Uri $baseUri -Method Post -InFile $tempRequestFile -Headers $headers -UseBasicParsing
-    #$fileListResponse.Content | Set-Content -Path (Join-Path $LogDirectory "02_Step2_Response_SUCCESS.xml")
-    Write-Host "  -> Saved request and response logs for Step 2."
+    $fileListResponse = Invoke-WebRequest -Uri $baseUri -Method Post -Body $fileListRequestPayload -Headers $headers -UseBasicParsing
+    If ($debugSaveFiles) { $fileListResponse.Content | Set-Content -Path (Join-Path $LogDirectory "02_Step2_Response_SUCCESS.xml") }
 
     # The response contains XML fragments that are HTML-encoded. We must decode this before treating it as XML.
     Add-Type -AssemblyName System.Web
@@ -276,7 +280,7 @@ try {
             "x86"   { "x86" }
             default { "unknown" }
         }
-
+        
         if ($systemArch -eq "unknown") {
             throw "Could not determine system architecture from '$($env:PROCESSOR_ARCHITECTURE)'."
         }
@@ -356,7 +360,7 @@ try {
         $ProgressPreference = $originalPref
 
         Write-Host "------------------------------------------------------------"
-        Write-Host "Process complete. All files are in the '$downloadDir' folder." -ForegroundColor Green
+        Write-Host "Finished downloading packages to: $workingDir" -ForegroundColor Green
 
     } catch {
         Write-Host "An error occurred during the filtering or downloading phase:" -ForegroundColor Red
@@ -393,7 +397,7 @@ try {
         $dependencyFiles = $allDownloadedFiles | Where-Object { $_.Name -notlike 'Microsoft.WindowsStore*' }
 
         if (-not $dependencyFiles -and -not $storePackageFile) {
-            Write-Warning "No package files found in '$downloadDir' to install."
+            Write-Warning "No package files found in '$workingDir' to install."
             return # Exits this part of the script gracefully
         }
 
@@ -472,8 +476,7 @@ try {
         try {
             $stream = $_.Exception.Response.GetResponseStream()
             $reader = New-Object System.IO.StreamReader($stream)
-            $responseBody = $reader.ReadToEnd()
-            #$responseBody | Set-Content -Path $errorLogPath
+            If ($debugSaveFiles) { $reader.ReadToEnd() | Set-Content -Path $errorLogPath }
         } catch { "Could not read error response body." | Set-Content -Path $errorLogPath }
         Write-Host "Status Code: $statusCode"
         Write-Host "Status Description: $statusDescription"
