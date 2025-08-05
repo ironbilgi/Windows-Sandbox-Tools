@@ -22,13 +22,14 @@
 		  <!-- Update the HostFolder path to the one on your real computer that will be shared with the Sandbox -->
 		  <HostFolder>B:\Caches\Sandbox_Share</HostFolder>
 		  <SandboxFolder>C:\Users\WDAGUtilityAccount\Desktop\HostShared</SandboxFolder>
+		  <!-- Whether or not to set the mapped folder ReadOnly - Aka don't allow the Sandbox to change anything in the mapped folder -->
 		  <ReadOnly>true</ReadOnly>
 		</MappedFolder>
 	</MappedFolders>
 
 	<!-- Run the powershell script from the mapped folder -->
 	<LogonCommand>
-		<Command>powershell -executionpolicy Bypass -command "start powershell {-file C:\Users\WDAGUtilityAccount\Desktop\HostShared\SandboxStartup.ps1}"</Command>
+		<Command>powershell -executionpolicy Bypass -command "start powershell {-file C:\Users\WDAGUtilityAccount\Desktop\HostShared\SandboxStartup.ps1 -launchingSandbox}"</Command>
 		<!-- Use this one below instead if you want the powershell window to not close after running the script -->
 		<!-- <Command>powershell -executionpolicy Bypass -command "start powershell {-noexit -file C:\Users\WDAGUtilityAccount\HostShared\SandboxStartup.ps1}"</Command> -->
 	</LogonCommand>
