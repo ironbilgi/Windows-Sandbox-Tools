@@ -1,7 +1,7 @@
 # Scripts & Tools for Windows Sandbox
 Various useful scripts for use within Windows Sandbox
 
-## Installer Scripts
+## 📥 Installer Scripts
 
 PowerShell scripts that can install apps or components not normally included in the Sandbox
 
@@ -11,14 +11,14 @@ PowerShell scripts that can install apps or components not normally included in 
   - (All web requests go directly to Microsoft servers. Even those fetching the download URLs in the first place)
 - `Install VC Redist.ps1`: Installs the latest Microsoft Visual C++ Redistributables, which are commonly required by other software.
 
-## General Scripts
+## 🛠️ General Scripts
 
 - `Set Theme Dark Mode.ps1` - Sets the Sandbox to Dark theme and also changes to a dark wallpaper
 - `Set Theme Light Mode.ps1` - Restores the Light theme. Doesn't currently change the wallpaper back though.
 
 ---------
 
-## SandboxStartup.ps1 (Startup Script)
+## 🕑 SandboxStartup.ps1 (Startup Script)
 
 This script runs within the Sandbox at launch and does a bunch of random registry tweaks to set up the Sandbox based on my own preference
 
