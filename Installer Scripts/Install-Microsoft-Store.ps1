@@ -1,4 +1,4 @@
-# This script will install the Microsoft Store into Windows Sandbox
+# This script will install the Microsoft Store from Within the Windows Sandbox
 #     It uses the Windows Update API to fetch the necessary installation files directly from Microsoft
 #     Unlike many similar scripts, it uses NO dependencies or third party APIs
 
