@@ -11,9 +11,14 @@ PowerShell scripts that can install apps or components not normally included in 
   - (All web requests go directly to Microsoft servers. Even those fetching the download URLs in the first place)
 - `Install VC Redist.ps1`: Installs the latest Microsoft Visual C++ Redistributables, which are commonly required by other software.
 
+## General Scripts
+
+- `Set Theme Dark Mode.ps1` - Sets the Sandbox to Dark theme and also changes to a dark wallpaper
+- `Set Theme Light Mode.ps1` - Restores the Light theme. Doesn't currently change the wallpaper back though.
+
 ---------
 
-## SandboxStartup.ps1
+## SandboxStartup.ps1 (Startup Script)
 
 This script runs within the Sandbox at launch and does a bunch of random registry tweaks to set up the Sandbox based on my own preference
 
@@ -42,3 +47,5 @@ It is written assuming it will be run from _within_ the sandbox, so to automatic
     
 3. Update any other options to your liking in the `.wsb` file, such as amount of RAM.
 4. Launch Sandbox using the configuration by double clicking `MyDefaultSandbox.wsb`. It will map the folder to the Desktop as a folder called `HostShared`, and run the script automatically. You can also add other scripts and things to the shared folder you may want to run manually.
+
+
