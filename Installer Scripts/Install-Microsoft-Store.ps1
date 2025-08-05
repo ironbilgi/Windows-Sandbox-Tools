@@ -7,25 +7,22 @@
 
 param(
     # Optional switch to output the generated XML files to the working directory
-    [switch]$debugSaveFiles
+    [switch]$debugSaveFiles,
+    # Optional switch to skip the installation of Microsoft Store, but still download the files
+    [switch]$noInstall,
+    # Optional switch to skip the download and install, but still show the packages found 
+    [switch]$noDownload
 )
 
 # --- Configuration ---
-# Category ID for the Microsoft Store app package
-$storeCategoryId = "64293252-5926-453c-9494-2d4021f1c78d" 
+# Note: These defaults should work for the regular current build of Microsoft Store, but I haven't tested using any of the other values. So fetching insider builds of MS Store (if any) might not work.
+$flightRing = "Retail"             # Apparently accepts 'Retail', 'Internal', and 'External'
+$flightingBranchName = ""          # Empty ( "" ) for normal release. Otherwise apparent possible values: Dev, Beta, ReleasePreview, MSIT, CanaryChannel, external
+$currentBranch = "ge_release"      # "rs_prerelease" for insider, "ni_release" for normal release on Windows build below 26100, "ge_release" for normal release equal or above 26100
 
-# Flight Ring - Use "Retail" for the public version. 
-# Note: Values other than retail are not properly set up yet in this script
-$flightRing = "Retail" 
-
-# Other Known options: 
-#    "RP"    (ReleasePreview Branch)
-#    "WIS"   (Beta Branch)
-#    "WIF"   (Dev Branch)
-# Other Possible Options, Untested:
-#    "Canary"
-#    "MSIT" (Internal)
-
+# Random Notes:
+#   flightRing should be "Internal" if flightingBranchName is "MSIT"
+#   MAYBE need flightRing as "External" if setting flightingBranchName anything besides empty or MSIT?
 
 # --- Define Working Directory ---
 # Get the path to the user's personal Downloads folder in a reliable way
@@ -33,6 +30,11 @@ $userDownloadsFolder = (New-Object -ComObject Shell.Application).Namespace('shel
 
 # Define the subfolder name for all our files
 $subfolderName = "MSStore Install"
+
+# Category ID for the Microsoft Store app package
+$storeCategoryId = "64293252-5926-453c-9494-2d4021f1c78d" 
+
+$flightingBranchName = $currentBranch
 
 # Combine them to create the full working directory path
 $workingDir = Join-Path -Path $userDownloadsFolder -ChildPath $subfolderName
@@ -128,7 +130,7 @@ $fileListXmlTemplate = @"
                 </ClientPreferredLanguages>
                 <ProductsParameters>
                     <SyncCurrentVersionOnly>false</SyncCurrentVersionOnly>
-                    <DeviceAttributes>E:BranchReadinessLevel=CB&amp;CurrentBranch=rs_prerelease&amp;OEMModel=Virtual%20Machine&amp;FlightRing=Retail&amp;AttrDataVer=321&amp;InstallLanguage=en-US&amp;OSUILocale=en-US&amp;InstallationType=Client&amp;FlightingBranchName=&amp;OSSkuId=48&amp;App=WU_STORE&amp;ProcessorManufacturer=GenuineIntel&amp;OEMName_Uncleaned=Microsoft%20Corporation&amp;AppVer=1407.2503.28012.0&amp;OSArchitecture=AMD64&amp;IsFlightingEnabled=1&amp;TelemetryLevel=1&amp;DefaultUserRegion=39070&amp;WuClientVer=1310.2503.26012.0&amp;OSVersion=10.0.26100.3915&amp;DeviceFamily=Windows.Desktop</DeviceAttributes>
+                    <DeviceAttributes>E:BranchReadinessLevel=CB&amp;CurrentBranch={2}&amp;OEMModel=Virtual%20Machine&amp;FlightRing={3}&amp;AttrDataVer=321&amp;InstallLanguage=en-US&amp;OSUILocale=en-US&amp;InstallationType=Client&amp;FlightingBranchName={4}&amp;OSSkuId=48&amp;App=WU_STORE&amp;ProcessorManufacturer=GenuineIntel&amp;OEMName_Uncleaned=Microsoft%20Corporation&amp;AppVer=1407.2503.28012.0&amp;OSArchitecture=AMD64&amp;IsFlightingEnabled=1&amp;TelemetryLevel=1&amp;DefaultUserRegion=39070&amp;WuClientVer=1310.2503.26012.0&amp;OSVersion=10.0.26100.3915&amp;DeviceFamily=Windows.Desktop</DeviceAttributes>
                     <CallerAttributes>Interactive=1;IsSeeker=1;</CallerAttributes>
                     <Products/>
                 </ProductsParameters>
@@ -160,7 +162,7 @@ $fileUrlXmlTemplate = @"
         <GetExtendedUpdateInfo2 xmlns="http://www.microsoft.com/SoftwareDistribution/Server/ClientWebService">
             <updateIDs><UpdateIdentity><UpdateID>{1}</UpdateID><RevisionNumber>{2}</RevisionNumber></UpdateIdentity></updateIDs>
             <infoTypes><XmlUpdateFragmentType>FileUrl</XmlUpdateFragmentType></infoTypes>
-            <DeviceAttributes>E:BranchReadinessLevel=CB&amp;CurrentBranch=rs_prerelease&amp;OEMModel=Virtual%20Machine&amp;FlightRing={3}&amp;AttrDataVer=321&amp;InstallLanguage=en-US&amp;OSUILocale=en-US&amp;InstallationType=Client&amp;FlightingBranchName=&amp;OSSkuId=48&amp;App=WU_STORE&amp;ProcessorManufacturer=GenuineIntel&amp;OEMName_Uncleaned=Microsoft%20Corporation&amp;AppVer=1407.2503.28012.0&amp;OSArchitecture=AMD64&amp;IsFlightingEnabled=1&amp;TelemetryLevel=1&amp;DefaultUserRegion=39070&amp;WuClientVer=1310.2503.26012.0&amp;OSVersion=10.0.26100.3915&amp;DeviceFamily=Windows.Desktop</DeviceAttributes>
+            <DeviceAttributes>E:BranchReadinessLevel=CB&amp;CurrentBranch={3}&amp;OEMModel=Virtual%20Machine&amp;FlightRing={4}&amp;AttrDataVer=321&amp;InstallLanguage=en-US&amp;OSUILocale=en-US&amp;InstallationType=Client&amp;FlightingBranchName={5}&amp;OSSkuId=48&amp;App=WU_STORE&amp;ProcessorManufacturer=GenuineIntel&amp;OEMName_Uncleaned=Microsoft%20Corporation&amp;AppVer=1407.2503.28012.0&amp;OSArchitecture=AMD64&amp;IsFlightingEnabled=1&amp;TelemetryLevel=1&amp;DefaultUserRegion=39070&amp;WuClientVer=1310.2503.26012.0&amp;OSVersion=10.0.26100.3915&amp;DeviceFamily=Windows.Desktop</DeviceAttributes>
         </GetExtendedUpdateInfo2>
     </s:Body>
 </s:Envelope>
@@ -185,7 +187,7 @@ try {
 
     # Step 2: Get File List
     Write-Host "Step 2: Getting file list..."
-    $fileListRequestPayload = $fileListXmlTemplate -f $encryptedCookieData, $storeCategoryId, $flightRing
+    $fileListRequestPayload = $fileListXmlTemplate -f $encryptedCookieData, $storeCategoryId, $currentBranch, $flightRing, $flightingBranchName
     If ($debugSaveFiles) { [System.IO.File]::WriteAllText((Join-Path $LogDirectory "02_Step2_Request_AUTOMATED.xml"), $fileListRequestPayload, [System.Text.UTF8Encoding]::new($false)) }
 
     $fileListResponse = Invoke-WebRequest -Uri $baseUri -Method Post -Body $fileListRequestPayload -Headers $headers -UseBasicParsing
@@ -326,7 +328,7 @@ try {
             Write-Host "Processing: $($package.FullName)"
 
             # Get the download URL for this specific package
-            $fileUrlRequestPayload = $fileUrlXmlTemplate -f $encryptedCookieData, $package.UpdateID, $package.RevisionNumber, $flightRing
+            $fileUrlRequestPayload = $fileUrlXmlTemplate -f $encryptedCookieData, $package.UpdateID, $package.RevisionNumber, $currentBranch, $flightRing, $flightingBranchName
             $fileUrlResponse = Invoke-WebRequest -Uri "$baseUri/secured" -Method Post -Body $fileUrlRequestPayload -Headers $headers -UseBasicParsing
             $fileUrlResponseXml = [xml]$fileUrlResponse.Content
 
@@ -336,6 +338,10 @@ try {
 
             if (-not $downloadUrl) {
                 Write-Warning "  -> Could not retrieve download URL for $($package.FileName). Skipping."
+                continue
+            }
+            if ($noDownload) {
+                Write-Host "  -> Skipping download for $($package.FullName) because of -noDownload switch." -ForegroundColor Yellow
                 continue
             }
 
@@ -365,6 +371,15 @@ try {
     } catch {
         Write-Host "An error occurred during the filtering or downloading phase:" -ForegroundColor Red
         Write-Host $_.Exception.ToString()
+    }
+
+    If ($noDownload) {
+        Write-Host "Skipping download step because of -noDownload switch." -ForegroundColor Yellow
+        return
+    }
+    If ($noInstall) {
+        Write-Host "Skipping installation step because of -noInstall switch." -ForegroundColor Yellow
+        return
     }
     
     # --- Step 5: Install Downloaded Packages ---
