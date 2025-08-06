@@ -4,7 +4,7 @@
 
 # Author: ThioJoe
 # Repo Url: https://github.com/ThioJoe/Windows-Sandbox-Tools
-# Last Updated: August 5, 2025
+# Last Updated: August 6, 2025
 
 param(
     # Optional switch to output the generated XML files to the working directory
@@ -42,8 +42,6 @@ $subfolderName = "MSStore Install"
 
 # Category ID for the Microsoft Store app package
 $storeCategoryId = "64293252-5926-453c-9494-2d4021f1c78d" 
-
-$flightingBranchName = $currentBranch
 
 # Combine them to create the full working directory path
 $workingDir = Join-Path -Path $userDownloadsFolder -ChildPath $subfolderName
