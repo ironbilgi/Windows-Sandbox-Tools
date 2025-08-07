@@ -27,11 +27,17 @@
 
 	<!-- Run the powershell script from the mapped folder -->
 	<LogonCommand>
-		<!-- Run the powershell script from the mapped folder. The seemingly redundant command nesting makes it so the powershell window is visible when running. -->
 		<Command>powershell -executionpolicy Bypass -command "start powershell {-file C:\Users\WDAGUtilityAccount\Desktop\HostShared\SandboxStartup.ps1 -launchingSandbox};"
-			<!-- Note: You can add more powershell commands as additional lines because of the way it parses the XML. For example you can uncomment the line below. Comments also obviously work here. -->
+			
 			<!-- start powershell {Write-Host 'Test'; Read-Host} -->
 		</Command>
+		<!-- Run the powershell script from the mapped folder. The seemingly redundant command nesting makes it so the powershell window is visible when running. -->
+		<Command>powershell -executionpolicy Bypass -command "
+			start powershell {-file C:\Users\WDAGUtilityAccount\Desktop\HostShared\SandboxStartup.ps1 -launchingSandbox};
+			<!-- Note: You can add more powershell commands as additional lines because of the way it parses the XML. Just remember to escape any quotation marks. -->
+			<!-- For example you can uncomment the line below. -->
+			<!-- start powershell {-file \"C:\Users\WDAGUtilityAccount\Desktop\HostShared\Set Theme Dark.ps1\"} -->
+		"</Command>
 	</LogonCommand>
 
 </Configuration> 
