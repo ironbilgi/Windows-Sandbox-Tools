@@ -19,7 +19,7 @@
 	<MappedFolders>
 		<!-- Desktop "HostShared" Folder. Put startup script and other useful scripts into. -->
 		<MappedFolder>
-		  <HostFolder>B:\Caches\Sandbox_Share</HostFolder> <!-- Update the HostFolder path to the one on your real computer that will be shared with the Sandbox -->
+		  <HostFolder>C:\Users\Public\Sandbox_Share</HostFolder> <!-- Update the HostFolder path to the one on your real computer that will be shared with the Sandbox -->
 		  <SandboxFolder>C:\Users\WDAGUtilityAccount\Desktop\HostShared</SandboxFolder> <!-- Don't change this, the startup script uses hardcoded paths -->
 		  <ReadOnly>true</ReadOnly> <!-- If Readonly is True, the sandbox can't change anything the folder (recommended) -->
 		</MappedFolder>
@@ -28,12 +28,9 @@
 	<!-- Run the powershell script from the mapped folder -->
 	<LogonCommand>
 		<!-- The seemingly redundant command nesting makes it so the powershell window is visible when running. -->
-		<Command>powershell -executionpolicy Bypass -command "
-			start powershell {-file C:\Users\WDAGUtilityAccount\Desktop\HostShared\SandboxStartup.ps1 -launchingSandbox};
-			<!-- Note: You can add more powershell commands as additional lines because of the way it parses the XML. Just remember to escape any quotation marks. -->
-			<!-- For example you can uncomment the line below. -->
-			<!-- start powershell {-file \"C:\Users\WDAGUtilityAccount\Desktop\HostShared\Set Theme Dark.ps1\"} -->
-		"</Command>
+		<Command>powershell -executionpolicy Bypass -command "start powershell {-file C:\Users\WDAGUtilityAccount\Desktop\HostShared\SandboxStartup.ps1 -launchingSandbox}"</Command>
+		<!-- Note: You can add more powershell commands in additional blocks. For example you can uncomment the line below. -->
+		<!-- <Command>powershell -executionpolicy Bypass -command "start powershell {-file \"C:\Users\WDAGUtilityAccount\Desktop\HostShared\Set Theme Dark Mode.ps1\"}"</Command> -->
 	</LogonCommand>
 
 </Configuration> 
