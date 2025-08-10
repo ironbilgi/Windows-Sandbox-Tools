@@ -4,7 +4,7 @@
 
 # Author: ThioJoe
 # Repo Url: https://github.com/ThioJoe/Windows-Sandbox-Tools
-# Last Updated: August 6, 2025
+# Last Updated: August 10, 2025
 
 param(
     # Optional switch to output the generated XML files to the working directory
@@ -45,6 +45,7 @@ $storeCategoryId = "64293252-5926-453c-9494-2d4021f1c78d"
 
 # Combine them to create the full working directory path
 $workingDir = Join-Path -Path $userDownloadsFolder -ChildPath $subfolderName
+$LogDirectory = Join-Path -Path $workingDir -ChildPath "Logs"
 
 # Create the directory if it doesn't exist
 if (-not (Test-Path -Path $workingDir)) {
@@ -52,7 +53,11 @@ if (-not (Test-Path -Path $workingDir)) {
 }
 
 If ($debugSaveFiles) {
-    Write-Host "All files (logs, downloads) will be saved to: '$workingDir'" -ForegroundColor Yellow
+    # Create a subdirectory for logs if it doesn't exist
+    if (-not (Test-Path -Path $LogDirectory)) {
+        New-Item -Path $LogDirectory -ItemType Directory -Force | Out-Null
+    }
+    Write-Host "All files (logs, downloads) will be saved to: '$LogDirectory'" -ForegroundColor Yellow
 }
 
 # --- XML Templates ---
